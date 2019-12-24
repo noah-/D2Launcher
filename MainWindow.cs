@@ -317,7 +317,7 @@ namespace D2Launcher
         void fullscreen_CheckedChanged(object sender, EventArgs e)
         {
             resolutionBox.Enabled = !fullscreen.Checked;
-            if (fullscreen.Checked) resolutionBox.Text = Resolution.Width + "x" + Resolution.Height;
+            if (fullscreen.Checked) resolutionBox.Text = Screen.PrimaryScreen.Bounds.Width + "x" + Screen.PrimaryScreen.Bounds.Height;
         }
 
         private void resolutionBox_SelectedIndexChanged(object sender, EventArgs e)
