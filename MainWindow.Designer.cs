@@ -29,13 +29,14 @@
         private void InitializeComponent()
         {
             this.multi = new System.Windows.Forms.CheckBox();
-            this.highRes = new System.Windows.Forms.CheckBox();
+            this.fullscreen = new System.Windows.Forms.CheckBox();
             this.installDir = new System.Windows.Forms.TextBox();
             this.classicCdKey = new System.Windows.Forms.TextBox();
             this.xpakCdKey = new System.Windows.Forms.TextBox();
             this.launchButton = new System.Windows.Forms.Button();
             this.sound = new System.Windows.Forms.CheckBox();
             this.sleepy = new System.Windows.Forms.CheckBox();
+            this.resolutionBox = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // multi
@@ -43,24 +44,25 @@
             this.multi.AutoSize = true;
             this.multi.Checked = true;
             this.multi.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.multi.Location = new System.Drawing.Point(87, 90);
+            this.multi.Location = new System.Drawing.Point(87, 117);
             this.multi.Name = "multi";
             this.multi.Size = new System.Drawing.Size(48, 17);
             this.multi.TabIndex = 0;
             this.multi.Text = "Multi";
             this.multi.UseVisualStyleBackColor = true;
             // 
-            // highRes
+            // fullscreen
             // 
-            this.highRes.AutoSize = true;
-            this.highRes.Checked = true;
-            this.highRes.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.highRes.Location = new System.Drawing.Point(13, 90);
-            this.highRes.Name = "highRes";
-            this.highRes.Size = new System.Drawing.Size(70, 17);
-            this.highRes.TabIndex = 1;
-            this.highRes.Text = "High Res";
-            this.highRes.UseVisualStyleBackColor = true;
+            this.fullscreen.AutoSize = true;
+            this.fullscreen.Checked = true;
+            this.fullscreen.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.fullscreen.Location = new System.Drawing.Point(13, 117);
+            this.fullscreen.Name = "fullscreen";
+            this.fullscreen.Size = new System.Drawing.Size(74, 17);
+            this.fullscreen.TabIndex = 1;
+            this.fullscreen.Text = "Fullscreen";
+            this.fullscreen.UseVisualStyleBackColor = true;
+            this.fullscreen.CheckedChanged += new System.EventHandler(this.fullscreen_CheckedChanged);
             // 
             // installDir
             // 
@@ -85,9 +87,9 @@
             // 
             // launchButton
             // 
-            this.launchButton.Location = new System.Drawing.Point(13, 113);
+            this.launchButton.Location = new System.Drawing.Point(12, 144);
             this.launchButton.Name = "launchButton";
-            this.launchButton.Size = new System.Drawing.Size(241, 23);
+            this.launchButton.Size = new System.Drawing.Size(242, 23);
             this.launchButton.TabIndex = 5;
             this.launchButton.Text = "Launch";
             this.launchButton.UseVisualStyleBackColor = true;
@@ -98,7 +100,7 @@
             this.sound.AutoSize = true;
             this.sound.Checked = true;
             this.sound.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.sound.Location = new System.Drawing.Point(142, 90);
+            this.sound.Location = new System.Drawing.Point(134, 117);
             this.sound.Name = "sound";
             this.sound.Size = new System.Drawing.Size(57, 17);
             this.sound.TabIndex = 6;
@@ -108,25 +110,55 @@
             // sleepy
             // 
             this.sleepy.AutoSize = true;
-            this.sleepy.Location = new System.Drawing.Point(201, 90);
+            this.sleepy.Checked = true;
+            this.sleepy.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.sleepy.Location = new System.Drawing.Point(193, 117);
             this.sleepy.Name = "sleepy";
             this.sleepy.Size = new System.Drawing.Size(58, 17);
             this.sleepy.TabIndex = 7;
             this.sleepy.Text = "Sleepy";
             this.sleepy.UseVisualStyleBackColor = true;
             // 
+            // resolutionBox
+            // 
+            this.resolutionBox.Enabled = false;
+            this.resolutionBox.FormattingEnabled = true;
+            this.resolutionBox.Items.AddRange(new object[] {
+            "640x480",
+            "768x480",
+            "800x600",
+            "1024x600",
+            "1024x768",
+            "1280x768",
+            "1280x800",
+            "1280x960",
+            "1400x1050",
+            "1600x1200",
+            "1920x1080",
+            "1920x1200",
+            "1920x1280",
+            "2560x1440",
+            "2560x1600",
+            "3840x2400"});
+            this.resolutionBox.Location = new System.Drawing.Point(13, 91);
+            this.resolutionBox.Name = "resolutionBox";
+            this.resolutionBox.Size = new System.Drawing.Size(241, 21);
+            this.resolutionBox.TabIndex = 8;
+            this.resolutionBox.SelectedIndexChanged += new System.EventHandler(this.resolutionBox_SelectedIndexChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(263, 146);
+            this.ClientSize = new System.Drawing.Size(268, 179);
+            this.Controls.Add(this.resolutionBox);
             this.Controls.Add(this.sleepy);
             this.Controls.Add(this.sound);
             this.Controls.Add(this.launchButton);
             this.Controls.Add(this.xpakCdKey);
             this.Controls.Add(this.classicCdKey);
             this.Controls.Add(this.installDir);
-            this.Controls.Add(this.highRes);
+            this.Controls.Add(this.fullscreen);
             this.Controls.Add(this.multi);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -141,13 +173,14 @@
         #endregion
 
         private System.Windows.Forms.CheckBox multi;
-        private System.Windows.Forms.CheckBox highRes;
+        private System.Windows.Forms.CheckBox fullscreen;
         private System.Windows.Forms.TextBox installDir;
         private System.Windows.Forms.TextBox classicCdKey;
         private System.Windows.Forms.TextBox xpakCdKey;
         private System.Windows.Forms.Button launchButton;
         private System.Windows.Forms.CheckBox sound;
         private System.Windows.Forms.CheckBox sleepy;
+        private System.Windows.Forms.ComboBox resolutionBox;
     }
 }
 

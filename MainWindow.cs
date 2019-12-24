@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -15,11 +16,13 @@ namespace D2Launcher
     {
         String ClassicCdKey = "";
         String XpakCdKey = "";
+        Rectangle Resolution = Screen.PrimaryScreen.Bounds;
         public MainWindow()
         {
             InitializeComponent();
             GetInstallDir();
             DumpCdKeys();
+            resolutionBox.Text = Resolution.Width + "x" + Resolution.Height;
         }
         void launchButton_Click(object sender, EventArgs e)
         {
@@ -33,14 +36,14 @@ namespace D2Launcher
             if (multi.Checked) WriteProcessMemory(procHandle, moduleBase + 0xF562A, new Byte[] { 0xDB }, 1, 0); // replace (test eax, eax) with (test ebx, ebx), same window check
             if (sleepy.Checked) WriteProcessMemory(procHandle, moduleBase + 0x51C31, new Byte[] { 0x90, 0x90 }, 2, 0);
             WriteProcessMemory(procHandle, moduleBase + 0x11FE3B, new Byte[] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }, 6, 0); // remove extrawork
-            if (highRes.Checked) ChangeTo1080(procHandle, moduleBase);
+            if (resolutionBox.Text != "800x600") SetResolution(procHandle, moduleBase);
             ResumeThread(pi.hThread);
             d2.WaitForInputIdle();
-            if (highRes.Checked)
+            if (fullscreen.Checked)
             {
                 int style = GetWindowLong(d2.MainWindowHandle, -16);
                 SetWindowLong(d2.MainWindowHandle, -16, (style & ~(0x00c00000)));
-                SetWindowPos(d2.MainWindowHandle, 0, 0, 0, 1920, 1080, 0);
+                SetWindowPos(d2.MainWindowHandle, 0, 0, 0, Resolution.Width, Resolution.Height, 0);
             }
             if (ClassicCdKey != classicCdKey.Text || XpakCdKey != xpakCdKey.Text) UpdateCdKey(procHandle, moduleBase, classicCdKey.Text, xpakCdKey.Text);
             CloseHandle(procHandle);
@@ -73,12 +76,12 @@ namespace D2Launcher
             XpakCdKey = xpakCdKey.Text = Encoding.UTF8.GetString(buffer);
             tempD2.Kill();
         }
-        void ChangeTo1080(IntPtr procHandle, IntPtr moduleBase)
+        void SetResolution(IntPtr procHandle, IntPtr moduleBase)
         {
             var xResAddrs800 = new Int32[] { 0xf559e, 0x111e05, 0x2c82e0, 0x4BA3C, 0x2c7b39, 0x109c2b, 0x11125b, 0x2b5023, 0x109910 };
             var YResAddrs600 = new Int32[] { 0xF55A4, 0x8e1df, 0x2c7b3e, 0x109c35, 0x111265, 0x2b502d, 0x4ba46 };
-            var xRes = 1920;
-            var yRes = 1080 - 26;// - System.Windows.Forms.SystemInformation.CaptionHeight - 5;
+            var xRes = Resolution.Width;
+            var yRes = Resolution.Height - 26;// - System.Windows.Forms.SystemInformation.CaptionHeight - 5;
             foreach (var addr in xResAddrs800) FindAndReplace(procHandle, moduleBase + addr, 0x10, 800, (UInt16)xRes);
             foreach (var addr in YResAddrs600) FindAndReplace(procHandle, moduleBase + addr, 0x10, 600, (UInt16)yRes);
 
@@ -93,7 +96,7 @@ namespace D2Launcher
 
             WriteProcessMemory(procHandle, moduleBase + 0x56EF8, Enumerable.Range(0, 44).Select(b => (Byte)0x90).ToArray(), 44, 0); // remove default ui offset
             WriteProcessMemory(procHandle, moduleBase + 0x99460, Enumerable.Range(0, 50).Select(b => (Byte)0x90).ToArray(), 50, 0); // remove  draw border
-            WriteProcessMemory(procHandle, moduleBase + 0x3A285C, BitConverter.GetBytes(-287), 4, 0); // set y ui offset
+            WriteProcessMemory(procHandle, moduleBase + 0x3A285C, BitConverter.GetBytes(-(Resolution.Height / 2 - 253)), 4, 0); // set y ui offset
 
             var setCursorPos = new Int32[] { 0x68770 + 0x72, 0x68770 + 0x8d, 0x68840 + 0x7d, 0xfa6b0 + 0x92 };
             foreach (var addr in setCursorPos) WriteProcessMemory(procHandle, moduleBase + addr, new Byte[] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }, 6, 0);
@@ -113,8 +116,8 @@ namespace D2Launcher
                         for (var l = 0; l < 4; l++)
                         {
                             var size = 29;
-                            var x = 1920 / 2 - 470 / 2 + 258 + (size + 2) * l;
-                            var y = 1080 - 26 - 9 - size - (size + 2) * k;
+                            var x = Resolution.Width / 2 - 470 / 2 + 258 + (size + 2) * l;
+                            var y = Resolution.Height - 26 - 9 - size - (size + 2) * k;
                             var ba = beltInfo + beltTypeOffset + 8 + k * 16 + l * 4;
                             WriteProcessMemory(procHandle, beltInfo + beltTypeOffset + 8 + k * 64 + l * 16 + 0x0, BitConverter.GetBytes(x), 4, 0);
                             WriteProcessMemory(procHandle, beltInfo + beltTypeOffset + 8 + k * 64 + l * 16 + 0x4, BitConverter.GetBytes(x + size), 4, 0);
@@ -133,7 +136,7 @@ namespace D2Launcher
             var inventoryInfo = VirtualAllocEx(procHandle, IntPtr.Zero, 8 * 0x1000, 0x3000, 0x4);
             var inventoryInfoPtr = inventoryInfo + 5 * 240 + 12 * 4; // bad hack, using monster/vendor inventory
             var characterInventory = new Box[] {
-                new Box(1920-320, 287, 320, 441, 10, 4), // base inv
+                new Box(Resolution.Width-320, (Resolution.Height / 2 - 253), 320, 441, 10, 4), // base inv
                 new Box(19, 255, 287, 113, 29, 29), // grid
                 new Box(20, 47, 55, 112), // rArm
                 new Box(133, 77, 56, 82), // torso
@@ -147,23 +150,23 @@ namespace D2Launcher
                 new Box(21, 181, 54, 53) // gloves
             };
             var bankInventory = new Box[] {
-                new Box(0, 287, 321, 222, 6, 8), // base inv
+                new Box(0, (Resolution.Height / 2 - 253), 321, 222, 6, 8), // base inv
                 new Box(74, 82, 170, 231, 29, 29), // grid
             };
             var vendorInventory = new Box[] {
-                new Box(0, 287, 321, 442, 10, 10), // base inv
+                new Box(0, (Resolution.Height / 2 - 253), 321, 442, 10, 10), // base inv
                 new Box(16, 63,  289, 289, 29, 29), // grid
             };
             var topTrade = new Box[] {
-                new Box(0, 287, 321, 219, 10, 4), // base inv
+                new Box(0, (Resolution.Height / 2 - 253), 321, 219, 10, 4), // base inv
                 new Box(20, 41, 285, 289, 29, 29), // grid
             };
             var bottomTrade = new Box[] {
-                new Box(0, 287 + 220, 321, 222, 10, 4), // base inv
+                new Box(0, (Resolution.Height / 2 - 253) + 220, 321, 222, 10, 4), // base inv
                 new Box(20, 35, 285, 289, 29, 29), // grid
             };
             var hireling = new Box[] {
-                new Box(0, 287, 0, 0), // null
+                new Box(0, (Resolution.Height / 2 - 253), 0, 0), // null
                 new Box(0, 0, 0, 0),// null
                 characterInventory[2],
                 characterInventory[3],
@@ -309,6 +312,18 @@ namespace D2Launcher
             internal IntPtr hThread;
             internal UInt32 dwProcessId;
             internal UInt32 dwThreadId;
+        }
+
+        void fullscreen_CheckedChanged(object sender, EventArgs e)
+        {
+            resolutionBox.Enabled = !fullscreen.Checked;
+            if (fullscreen.Checked) resolutionBox.Text = Resolution.Width + "x" + Resolution.Height;
+        }
+
+        private void resolutionBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Resolution.Width = Int32.Parse(resolutionBox.Text.Split('x')[0]);
+            Resolution.Height = Int32.Parse(resolutionBox.Text.Split('x')[1]);
         }
     }
 }
