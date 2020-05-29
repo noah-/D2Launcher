@@ -37,6 +37,7 @@
             this.sound = new System.Windows.Forms.CheckBox();
             this.sleepy = new System.Windows.Forms.CheckBox();
             this.resolutionBox = new System.Windows.Forms.ComboBox();
+            this.mapHack = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // multi
@@ -87,7 +88,7 @@
             // 
             // launchButton
             // 
-            this.launchButton.Location = new System.Drawing.Point(12, 144);
+            this.launchButton.Location = new System.Drawing.Point(12, 164);
             this.launchButton.Name = "launchButton";
             this.launchButton.Size = new System.Drawing.Size(242, 23);
             this.launchButton.TabIndex = 5;
@@ -121,7 +122,6 @@
             // 
             // resolutionBox
             // 
-            this.resolutionBox.Enabled = false;
             this.resolutionBox.FormattingEnabled = true;
             this.resolutionBox.Items.AddRange(new object[] {
             "640x480",
@@ -146,11 +146,24 @@
             this.resolutionBox.TabIndex = 8;
             this.resolutionBox.SelectedIndexChanged += new System.EventHandler(this.resolutionBox_SelectedIndexChanged);
             // 
+            // mapHack
+            // 
+            this.mapHack.AutoSize = true;
+            this.mapHack.Checked = true;
+            this.mapHack.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.mapHack.Location = new System.Drawing.Point(87, 140);
+            this.mapHack.Name = "mapHack";
+            this.mapHack.Size = new System.Drawing.Size(71, 17);
+            this.mapHack.TabIndex = 9;
+            this.mapHack.Text = "Maphack";
+            this.mapHack.UseVisualStyleBackColor = true;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(268, 179);
+            this.ClientSize = new System.Drawing.Size(268, 199);
+            this.Controls.Add(this.mapHack);
             this.Controls.Add(this.resolutionBox);
             this.Controls.Add(this.sleepy);
             this.Controls.Add(this.sound);
@@ -181,6 +194,7 @@
         private System.Windows.Forms.CheckBox sound;
         private System.Windows.Forms.CheckBox sleepy;
         private System.Windows.Forms.ComboBox resolutionBox;
+        private System.Windows.Forms.CheckBox mapHack;
     }
 }
 

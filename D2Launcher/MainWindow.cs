@@ -23,6 +23,7 @@ namespace D2Launcher
             InitializeComponent();
             GetInstallDir();
             DumpCdKeys();
+            //resolutionBox.Text = "800x600";// Resolution.Width + "x" + Resolution.Height;
             resolutionBox.Text = Resolution.Width + "x" + Resolution.Height;
         }
         void launchButton_Click(object sender, EventArgs e)
@@ -36,7 +37,6 @@ namespace D2Launcher
             var moduleBase = (IntPtr)0x400000; // startedProcess.MainModule.BaseAddress doesn't work in suspended since crt/app isn't loaded yet?
             if (multi.Checked) WriteProcessMemory(procHandle, moduleBase + 0xF562A, new Byte[] { 0xDB }, 1, 0); // replace (test eax, eax) with (test ebx, ebx), same window check
             if (sleepy.Checked) WriteProcessMemory(procHandle, moduleBase + 0x51C31, new Byte[] { 0x90, 0x90 }, 2, 0);
-            if (sleepy.Checked) WriteProcessMemory(procHandle, moduleBase + 0x51C40, new Byte[] { 0x90, 0x90 }, 2, 0); //You are missing the 2nd fix for CPU infinite loop bug fix. This is based off the https://d2mods.info/forum/viewtopic.php?t=62140
             WriteProcessMemory(procHandle, moduleBase + 0x11FE3B, new Byte[] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }, 6, 0); // remove extrawork
             if (resolutionBox.Text != "800x600") SetResolution(procHandle, moduleBase);
             ResumeThread(pi.hThread);
@@ -48,7 +48,37 @@ namespace D2Launcher
                 SetWindowPos(d2.MainWindowHandle, 0, 0, 0, Resolution.Width, Resolution.Height, 0);
             }
             if (ClassicCdKey != classicCdKey.Text || XpakCdKey != xpakCdKey.Text) UpdateCdKey(procHandle, moduleBase, classicCdKey.Text, xpakCdKey.Text);
-            //EnableCustomCheckRevision(d2, procHandle);
+            EnableCustomCheckRevision(d2, procHandle);
+
+            //if (File.Exists("D2Mods.dll")) HardcodedDll.Bytes = File.ReadAllBytes(@"D2Mods.dll");
+            var createDllHardcode = false;
+            if (createDllHardcode)
+            {
+                var sb = new StringBuilder();
+                sb.Append(@"using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace D2Launcher
+{
+    public static class HardcodedDll
+    {
+        public static Byte[] Bytes = new Byte[]{
+");
+                var q = 0; sb.Append(String.Join(", ", HardcodedDll.Bytes.Select(b => (((++q % 16) == 0) ? "\n" : "") + "0x" + b.ToString("X"))));
+                sb.Append(@"};
+    }
+}
+");
+                File.WriteAllText(@"..\D2Launcher\HardcodedDll.cs", sb.ToString());
+            }
+            if (mapHack.Checked)
+            {
+                var mm = new ManualMapInjection.Injection.ManualMapInjector(d2);
+                mm.Inject(HardcodedDll.Bytes, procHandle);
+            }
             CloseHandle(procHandle);
         }
         void GetInstallDir()
