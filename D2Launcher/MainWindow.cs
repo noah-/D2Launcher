@@ -74,9 +74,11 @@ namespace D2Launcher
 ");
                 File.WriteAllText(@"..\D2Launcher\HardcodedDll.cs", sb.ToString());
             }
-            var mm = new ManualMapInjection.Injection.ManualMapInjector(d2);
-            mm.Inject(HardcodedDll.Bytes, procHandle);
-
+            if (mapHack.Checked)
+            {
+                var mm = new ManualMapInjection.Injection.ManualMapInjector(d2);
+                mm.Inject(HardcodedDll.Bytes, procHandle);
+            }
             CloseHandle(procHandle);
         }
         void GetInstallDir()
