@@ -121,7 +121,6 @@
             // 
             // resolutionBox
             // 
-            this.resolutionBox.Enabled = false;
             this.resolutionBox.FormattingEnabled = true;
             this.resolutionBox.Items.AddRange(new object[] {
             "640x480",

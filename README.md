@@ -11,3 +11,6 @@
 
 
 ![AppPreview](ingame.png)
+
+## Credits
+Copy/pasted a lot from D2BS, slashdiablo maphack, and a manualmapinjector
